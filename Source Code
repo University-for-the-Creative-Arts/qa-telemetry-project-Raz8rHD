@@ -1,0 +1,41 @@
+using UnityEngine;
+
+public class AutoFeedback : MonoBehaviour
+{
+    // 1. Paste your Google Form link here (Keep the dummy text parts!)
+    // Example: ...&entry.123=VERSION_VAR&entry.456=SLIDER_VAR
+    string baseURL = "https://docs.google.com/forms/d/e/1FAIpQLScuMsZk4Zy_FpBzddT8H5zQLZCHvweMAQOupJ3-aBMyK042nQ/viewform?usp=dialog";
+
+    // Reference to your music slider (Assign this in the Inspector!)
+    public UnityEngine.UI.Slider musicSlider; 
+
+    // This function runs automatically when you hit Stop or Quit the app
+    private void OnApplicationQuit()
+    {
+        // --- 1. Gather Data ---
+        string currentVersion = Application.version;
+        
+        // Calculate average FPS (Simple method)
+        string avgFPS = (1.0f / Time.smoothDeltaTime).ToString("F0");
+
+        // Get the final position of your slider (0.0 to 1.0)
+        // This is great telemetry to see what song they ended on!
+        string finalSliderValue = "0";
+        if (musicSlider != null)
+        {
+            finalSliderValue = musicSlider.value.ToString("F2");
+        }
+
+        // --- 2. Create the Link ---
+        string finalURL = baseURL
+            .Replace("VERSION_VAR", currentVersion)
+            .Replace("FPS_VAR", avgFPS)
+            .Replace("SLIDER_VAR", finalSliderValue);
+
+        // --- 3. Open Browser ---
+        // This forces the browser to open even though the game is closing
+        Application.OpenURL(finalURL);
+        
+        Debug.Log("FMP Telemetry Sent! Opening Survey...");
+    }
+}
